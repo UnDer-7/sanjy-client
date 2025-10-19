@@ -14,6 +14,7 @@ public record MealRecordResponseDTO(
         String freeMealDescription,
         Double quantity,
         String unit,
-        String notes
+        String notes,
+        LocalDateTime createdAt
 ) {
 }

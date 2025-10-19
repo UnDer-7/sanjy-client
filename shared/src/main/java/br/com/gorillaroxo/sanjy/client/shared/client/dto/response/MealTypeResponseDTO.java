@@ -1,10 +1,13 @@
 package br.com.gorillaroxo.sanjy.client.shared.client.dto.response;
 
+import lombok.Builder;
+
 import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+@Builder
 public record MealTypeResponseDTO(
     Long id,
     String name,

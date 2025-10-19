@@ -5,11 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class StandardOptionRequest {
-    private Integer optionNumber;
-    private String description;
+public record StandardOptionRequestDTO(
+    Integer optionNumber,
+    String description
+) {
+
 }

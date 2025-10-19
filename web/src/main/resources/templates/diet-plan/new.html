@@ -46,27 +46,27 @@
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="dailyCalories">Calories (kcal) *</label>
+                            <label for="dailyCalories">Calories (kcal)</label>
                             <input type="number" id="dailyCalories" th:field="*{dailyCalories}"
-                                   required min="0" placeholder="2266">
+                                   min="0" placeholder="2266">
                         </div>
                         <div class="form-group">
-                            <label for="dailyProteinInG">Protein (g) *</label>
+                            <label for="dailyProteinInG">Protein (g)</label>
                             <input type="number" id="dailyProteinInG" th:field="*{dailyProteinInG}"
-                                   required min="0" placeholder="186">
+                                   min="0" placeholder="186">
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="dailyCarbsInG">Carbs (g) *</label>
+                            <label for="dailyCarbsInG">Carbs (g)</label>
                             <input type="number" id="dailyCarbsInG" th:field="*{dailyCarbsInG}"
-                                   required min="0" placeholder="288">
+                                   min="0" placeholder="288">
                         </div>
                         <div class="form-group">
-                            <label for="dailyFatInG">Fat (g) *</label>
+                            <label for="dailyFatInG">Fat (g)</label>
                             <input type="number" id="dailyFatInG" th:field="*{dailyFatInG}"
-                                   required min="0" placeholder="30">
+                                   min="0" placeholder="30">
                         </div>
                     </div>
                 </section>
@@ -91,25 +91,13 @@
                     <h2>Meals and Options</h2>
                     <p class="help-text">
                         Add the plan's meals with their scheduled times and food options.
-                        Use comma-separated fields for multiple options.
                     </p>
 
                     <div id="meal-types-container">
-                        <!-- Dynamic meal fields will be added here via JavaScript -->
-                        <!-- For now, leave as textarea for manual text input -->
-                        <div class="form-group">
-                            <label>Meals (manual format)</label>
-                            <textarea name="mealTypesJson" rows="10"
-                                      placeholder='Manual input example:
-Breakfast - 06:20
-- Option 1: 2 slices whole grain bread + 2 eggs
-- Option 2: Oatmeal with fruits
-
-Lunch - 12:00
-- Option 1: Rice + chicken + salad'></textarea>
-                            <small>Note: In production, this field would be replaced by a dynamic form</small>
-                        </div>
+                        <!-- Dynamic meal types will be added here via JavaScript -->
                     </div>
+
+                    <button type="button" class="btn btn-add" id="add-meal-type-btn">+ Add Meal Type</button>
                 </section>
 
                 <div class="form-actions">
@@ -123,5 +111,194 @@ Lunch - 12:00
             <p>&copy; 2025 SanJy - Food Control System</p>
         </footer>
     </div>
+
+    <script th:inline="javascript">
+        let mealTypeIndex = 0;
+
+        // Initialize with one meal type and set default dates
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default dates
+            const today = new Date();
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+
+            // Start date = today
+            startDateInput.value = today.toISOString().split('T')[0];
+
+            // End date = today + 2 months
+            const endDate = new Date(today);
+            endDate.setMonth(endDate.getMonth() + 2);
+            endDateInput.value = endDate.toISOString().split('T')[0];
+
+            addMealType();
+        });
+
+        document.getElementById('add-meal-type-btn').addEventListener('click', function() {
+            addMealType();
+        });
+
+        function addMealType() {
+            const container = document.getElementById('meal-types-container');
+            const index = mealTypeIndex++;
+
+            const mealTypeDiv = document.createElement('div');
+            mealTypeDiv.className = 'meal-type-block';
+            mealTypeDiv.dataset.index = index;
+
+            mealTypeDiv.innerHTML = `
+                <div class="meal-type-header">
+                    <h3>Meal Type #${index + 1}</h3>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeMealType(${index})">Remove</button>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="mealType-${index}-name">Meal Name *</label>
+                        <input type="text" id="mealType-${index}-name"
+                               name="mealTypes[${index}].name"
+                               required
+                               placeholder="e.g. Breakfast, Lunch, Dinner">
+                    </div>
+                    <div class="form-group">
+                        <label for="mealType-${index}-time">Scheduled Time</label>
+                        <input type="time" id="mealType-${index}-time"
+                               name="mealTypes[${index}].scheduledTime"
+                               placeholder="HH:mm">
+                    </div>
+                </div>
+
+                <div class="options-section">
+                    <h4>Standard Options</h4>
+                    <div class="options-container" id="options-container-${index}">
+                        <!-- Options will be added here -->
+                    </div>
+                    <button type="button" class="btn btn-add btn-sm" onclick="addOption(${index})">+ Add Option</button>
+                </div>
+            `;
+
+            container.appendChild(mealTypeDiv);
+
+            // Add first option automatically
+            addOption(index);
+        }
+
+        function removeMealType(mealTypeIndex) {
+            const mealTypes = document.querySelectorAll('.meal-type-block');
+            if (mealTypes.length <= 1) {
+                alert('You must have at least one meal type.');
+                return;
+            }
+
+            const mealTypeBlock = document.querySelector(`.meal-type-block[data-index="${mealTypeIndex}"]`);
+            if (mealTypeBlock && confirm('Remove this meal type and all its options?')) {
+                mealTypeBlock.remove();
+                reindexMealTypes();
+            }
+        }
+
+        function addOption(mealTypeIndex) {
+            const optionsContainer = document.getElementById(`options-container-${mealTypeIndex}`);
+            const currentOptions = optionsContainer.querySelectorAll('.option-block').length;
+            const optionIndex = currentOptions;
+            const optionNumber = optionIndex + 1;
+
+            const optionDiv = document.createElement('div');
+            optionDiv.className = 'option-block';
+            optionDiv.dataset.optionIndex = optionIndex;
+
+            optionDiv.innerHTML = `
+                <div class="option-header">
+                    <span class="option-badge">Option #${optionNumber}</span>
+                    <button type="button" class="btn btn-danger btn-xs" onclick="removeOption(${mealTypeIndex}, ${optionIndex})">Remove</button>
+                </div>
+                <input type="hidden"
+                       name="mealTypes[${mealTypeIndex}].standardOptions[${optionIndex}].optionNumber"
+                       value="${optionNumber}">
+                <textarea name="mealTypes[${mealTypeIndex}].standardOptions[${optionIndex}].description"
+                          required
+                          rows="3"
+                          placeholder="e.g. 2 slices whole grain bread -- 45g | Scrambled eggs -- 3 eggs"></textarea>
+            `;
+
+            optionsContainer.appendChild(optionDiv);
+        }
+
+        function removeOption(mealTypeIndex, optionIndex) {
+            const optionsContainer = document.getElementById(`options-container-${mealTypeIndex}`);
+            const options = optionsContainer.querySelectorAll('.option-block');
+
+            if (options.length <= 1) {
+                alert('Each meal type must have at least one option.');
+                return;
+            }
+
+            const optionBlock = optionsContainer.querySelector(`.option-block[data-option-index="${optionIndex}"]`);
+            if (optionBlock) {
+                optionBlock.remove();
+                reindexOptions(mealTypeIndex);
+            }
+        }
+
+        function reindexMealTypes() {
+            const mealTypes = document.querySelectorAll('.meal-type-block');
+            mealTypes.forEach((mealType, newIndex) => {
+                const oldIndex = mealType.dataset.index;
+                mealType.dataset.index = newIndex;
+
+                // Update header
+                mealType.querySelector('h3').textContent = `Meal Type #${newIndex + 1}`;
+
+                // Update remove button
+                const removeBtn = mealType.querySelector('.meal-type-header .btn-danger');
+                removeBtn.setAttribute('onclick', `removeMealType(${newIndex})`);
+
+                // Update meal type inputs
+                mealType.querySelectorAll('input[type="text"], input[type="time"]').forEach(input => {
+                    const name = input.getAttribute('name');
+                    if (name) {
+                        input.setAttribute('name', name.replace(/mealTypes\[\d+\]/, `mealTypes[${newIndex}]`));
+                        input.id = input.id.replace(/mealType-\d+-/, `mealType-${newIndex}-`);
+                    }
+                });
+
+                // Update options container id
+                const optionsContainer = mealType.querySelector('.options-container');
+                optionsContainer.id = `options-container-${newIndex}`;
+
+                // Update add option button
+                const addOptionBtn = mealType.querySelector('.options-section .btn-add');
+                addOptionBtn.setAttribute('onclick', `addOption(${newIndex})`);
+
+                // Reindex options within this meal type
+                reindexOptions(newIndex);
+            });
+        }
+
+        function reindexOptions(mealTypeIndex) {
+            const optionsContainer = document.getElementById(`options-container-${mealTypeIndex}`);
+            const options = optionsContainer.querySelectorAll('.option-block');
+
+            options.forEach((option, newOptionIndex) => {
+                option.dataset.optionIndex = newOptionIndex;
+                const optionNumber = newOptionIndex + 1;
+
+                // Update badge
+                option.querySelector('.option-badge').textContent = `Option #${optionNumber}`;
+
+                // Update remove button
+                const removeBtn = option.querySelector('.btn-danger');
+                removeBtn.setAttribute('onclick', `removeOption(${mealTypeIndex}, ${newOptionIndex})`);
+
+                // Update hidden input
+                const hiddenInput = option.querySelector('input[type="hidden"]');
+                hiddenInput.setAttribute('name', `mealTypes[${mealTypeIndex}].standardOptions[${newOptionIndex}].optionNumber`);
+                hiddenInput.value = optionNumber;
+
+                // Update textarea
+                const textarea = option.querySelector('textarea');
+                textarea.setAttribute('name', `mealTypes[${mealTypeIndex}].standardOptions[${newOptionIndex}].description`);
+            });
+        }
+    </script>
 </body>
 </html>
