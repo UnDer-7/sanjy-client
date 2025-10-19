@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Today's Meals - SanJy</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/meal.css}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Today's Meals</h1>
+            <nav>
+                <a th:href="@{/}">Home</a>
+                <a th:href="@{/diet-plan/active}">Active Plan</a>
+                <a th:href="@{/meal/new}">Record Meal</a>
+            </nav>
+        </header>
+
+        <main>
+            <div class="summary-cards">
+                <div class="summary-card planned">
+                    <span class="summary-label">Planned Meals</span>
+                    <span class="summary-value" th:text="${plannedCount}">0</span>
+                </div>
+                <div class="summary-card free">
+                    <span class="summary-label">Free Meals</span>
+                    <span class="summary-value" th:text="${freeCount}">0</span>
+                </div>
+                <div class="summary-card total">
+                    <span class="summary-label">Total</span>
+                    <span class="summary-value" th:text="${plannedCount + freeCount}">0</span>
+                </div>
+            </div>
+
+            <div th:if="${todayMeals.empty}" class="empty-state">
+                <h2>No meals recorded today</h2>
+                <p>Start by recording your first meal of the day!</p>
+                <a th:href="@{/meal/new}" class="btn btn-primary">Record First Meal</a>
+            </div>
+
+            <div th:if="${!todayMeals.empty}" class="meals-list">
+                <div class="list-header">
+                    <h2>Recorded Meals</h2>
+                    <a th:href="@{/meal/new}" class="btn btn-primary btn-sm">+ New Meal</a>
+                </div>
+
+                <table class="meals-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Quantity</th>
+                            <th>Category</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="meal : ${todayMeals}">
+                            <td class="time-cell">
+                                <span th:text="${#temporals.format(meal.consumedAt, 'HH:mm')}">08:30</span>
+                            </td>
+                            <td class="meal-type-cell">
+                                <strong th:text="${meal.mealType.name}">Breakfast</strong>
+                                <small th:text="'(scheduled: ' + ${#temporals.format(meal.mealType.scheduledTime, 'HH:mm')} + ')'">(06:20)</small>
+                            </td>
+                            <td class="description-cell">
+                                <!-- Planned Meal -->
+                                <div th:if="${!meal.isFreeMeal}">
+                                    <span class="option-badge" th:text="'Option ' + ${meal.standardOption.optionNumber}">Option 1</span>
+                                    <p th:text="${meal.standardOption.description}">Option description</p>
+                                </div>
+                                <!-- Free Meal -->
+                                <div th:if="${meal.isFreeMeal}">
+                                    <p th:text="${meal.freeMealDescription}">Free meal description</p>
+                                </div>
+                            </td>
+                            <td class="quantity-cell">
+                                <span th:text="${meal.quantity} + ' ' + ${meal.unit}">1.0 serving</span>
+                            </td>
+                            <td class="category-cell">
+                                <span th:if="${!meal.isFreeMeal}" class="badge badge-planned">Planned</span>
+                                <span th:if="${meal.isFreeMeal}" class="badge badge-free">Free</span>
+                            </td>
+                            <td class="notes-cell">
+                                <span th:text="${meal.notes}" th:if="${meal.notes != null}">-</span>
+                                <span th:if="${meal.notes == null}" class="text-muted">-</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 SanJy - Food Control System</p>
+        </footer>
+    </div>
+</body>
+</html>

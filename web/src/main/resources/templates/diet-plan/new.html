@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Diet Plan - SanJy</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/diet-plan.css}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>New Diet Plan</h1>
+            <nav>
+                <a th:href="@{/}">Home</a>
+                <a th:href="@{/diet-plan/active}">Active Plan</a>
+                <a th:href="@{/meal/today}">Today's Meals</a>
+            </nav>
+        </header>
+
+        <main>
+            <form th:action="@{/diet-plan}" th:object="${dietPlanRequest}" method="post" class="diet-plan-form">
+                <section class="form-section">
+                    <h2>Basic Information</h2>
+
+                    <div class="form-group">
+                        <label for="name">Plan Name *</label>
+                        <input type="text" id="name" th:field="*{name}" required
+                               placeholder="e.g. Plan #02 - Cutting">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="startDate">Start Date *</label>
+                            <input type="date" id="startDate" th:field="*{startDate}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate">End Date *</label>
+                            <input type="date" id="endDate" th:field="*{endDate}" required>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="form-section">
+                    <h2>Daily Macros</h2>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="dailyCalories">Calories (kcal) *</label>
+                            <input type="number" id="dailyCalories" th:field="*{dailyCalories}"
+                                   required min="0" placeholder="2266">
+                        </div>
+                        <div class="form-group">
+                            <label for="dailyProteinInG">Protein (g) *</label>
+                            <input type="number" id="dailyProteinInG" th:field="*{dailyProteinInG}"
+                                   required min="0" placeholder="186">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="dailyCarbsInG">Carbs (g) *</label>
+                            <input type="number" id="dailyCarbsInG" th:field="*{dailyCarbsInG}"
+                                   required min="0" placeholder="288">
+                        </div>
+                        <div class="form-group">
+                            <label for="dailyFatInG">Fat (g) *</label>
+                            <input type="number" id="dailyFatInG" th:field="*{dailyFatInG}"
+                                   required min="0" placeholder="30">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="form-section">
+                    <h2>Goals and Notes</h2>
+
+                    <div class="form-group">
+                        <label for="goal">Goal</label>
+                        <textarea id="goal" th:field="*{goal}" rows="3"
+                                  placeholder="e.g. Fat loss with muscle preservation"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nutritionistNotes">Nutritionist Notes</label>
+                        <textarea id="nutritionistNotes" th:field="*{nutritionistNotes}" rows="4"
+                                  placeholder="Additional notes..."></textarea>
+                    </div>
+                </section>
+
+                <section class="form-section">
+                    <h2>Meals and Options</h2>
+                    <p class="help-text">
+                        Add the plan's meals with their scheduled times and food options.
+                        Use comma-separated fields for multiple options.
+                    </p>
+
+                    <div id="meal-types-container">
+                        <!-- Dynamic meal fields will be added here via JavaScript -->
+                        <!-- For now, leave as textarea for manual text input -->
+                        <div class="form-group">
+                            <label>Meals (manual format)</label>
+                            <textarea name="mealTypesJson" rows="10"
+                                      placeholder='Manual input example:
+Breakfast - 06:20
+- Option 1: 2 slices whole grain bread + 2 eggs
+- Option 2: Oatmeal with fruits
+
+Lunch - 12:00
+- Option 1: Rice + chicken + salad'></textarea>
+                            <small>Note: In production, this field would be replaced by a dynamic form</small>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save Plan</button>
+                    <a th:href="@{/diet-plan/active}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 SanJy - Food Control System</p>
+        </footer>
+    </div>
+</body>
+</html>
