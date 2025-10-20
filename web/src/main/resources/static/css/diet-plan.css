@@ -276,3 +276,42 @@
     padding: 0.25rem 0.5rem;
     font-size: 0.75rem;
 }
+
+/* Upload Section Styles */
+.upload-section {
+    background-color: #f0f9ff;
+    border: 2px dashed var(--primary-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.upload-section h2 {
+    color: var(--primary-color);
+    font-size: 1.25rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.upload-form {
+    margin-top: var(--spacing-md);
+}
+
+.upload-controls {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+.upload-controls input[type="file"] {
+    flex: 1;
+    padding: var(--spacing-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    background-color: white;
+}
+
+.section-divider {
+    border: none;
+    border-top: 2px solid var(--border-color);
+    margin: var(--spacing-xl) 0;
+}

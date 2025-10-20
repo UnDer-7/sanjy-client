@@ -19,6 +19,20 @@
         </header>
 
         <main>
+            <!-- Upload Form Section -->
+            <section class="upload-section">
+                <h2>Import from File</h2>
+                <p class="help-text">Upload a PDF or text file to auto-fill the form</p>
+                <form th:action="@{/diet-plan/upload}" method="post" enctype="multipart/form-data" class="upload-form">
+                    <div class="upload-controls">
+                        <input type="file" id="file" name="file" accept=".pdf,.txt,.md,text/*" required>
+                        <button type="submit" class="btn btn-secondary">Upload & Fill Form</button>
+                    </div>
+                </form>
+            </section>
+
+            <hr class="section-divider">
+
             <form th:action="@{/diet-plan}" th:object="${dietPlanRequest}" method="post" class="diet-plan-form">
                 <section class="form-section">
                     <h2>Basic Information</h2>
@@ -115,35 +129,67 @@
     <script th:inline="javascript">
         let mealTypeIndex = 0;
 
+        // Get meal types data from Thymeleaf (if any)
+        /*<![CDATA[*/
+        const mealTypesData = /*[[${dietPlanRequest.mealTypes}]]*/ null;
+        /*]]>*/
+
         // Initialize with one meal type and set default dates
         document.addEventListener('DOMContentLoaded', function() {
-            // Set default dates
+            // Set default dates only if not already set
             const today = new Date();
             const startDateInput = document.getElementById('startDate');
             const endDateInput = document.getElementById('endDate');
 
-            // Start date = today
-            startDateInput.value = today.toISOString().split('T')[0];
+            if (!startDateInput.value) {
+                startDateInput.value = today.toISOString().split('T')[0];
+            }
 
-            // End date = today + 2 months
-            const endDate = new Date(today);
-            endDate.setMonth(endDate.getMonth() + 2);
-            endDateInput.value = endDate.toISOString().split('T')[0];
+            if (!endDateInput.value) {
+                const endDate = new Date(today);
+                endDate.setMonth(endDate.getMonth() + 2);
+                endDateInput.value = endDate.toISOString().split('T')[0];
+            }
 
-            addMealType();
+            // Load meal types from data or create empty one
+            if (mealTypesData && mealTypesData.length > 0) {
+                loadMealTypesFromData(mealTypesData);
+            } else {
+                addMealType();
+            }
         });
 
         document.getElementById('add-meal-type-btn').addEventListener('click', function() {
             addMealType();
         });
 
-        function addMealType() {
+        function loadMealTypesFromData(mealTypes) {
+            mealTypes.forEach((mealType, index) => {
+                addMealType(mealType.name, mealType.scheduledTime, mealType.standardOptions);
+            });
+        }
+
+        function addMealType(mealName = '', scheduledTime = '', standardOptions = null) {
             const container = document.getElementById('meal-types-container');
             const index = mealTypeIndex++;
 
             const mealTypeDiv = document.createElement('div');
             mealTypeDiv.className = 'meal-type-block';
             mealTypeDiv.dataset.index = index;
+
+            // Format time if provided (remove seconds)
+            let timeValue = '';
+            if (scheduledTime) {
+                // scheduledTime comes as array [hour, minute, second] from Thymeleaf
+                if (Array.isArray(scheduledTime)) {
+                    const hour = String(scheduledTime[0]).padStart(2, '0');
+                    const minute = String(scheduledTime[1]).padStart(2, '0');
+                    timeValue = `${hour}:${minute}`;
+                } else if (typeof scheduledTime === 'string') {
+                    // If it's already a string, take only HH:mm
+                    timeValue = scheduledTime.substring(0, 5);
+                }
+            }
 
             mealTypeDiv.innerHTML = `
                 <div class="meal-type-header">
@@ -156,6 +202,7 @@
                         <label for="mealType-${index}-name">Meal Name *</label>
                         <input type="text" id="mealType-${index}-name"
                                name="mealTypes[${index}].name"
+                               value="${mealName}"
                                required
                                placeholder="e.g. Breakfast, Lunch, Dinner">
                     </div>
@@ -163,6 +210,7 @@
                         <label for="mealType-${index}-time">Scheduled Time</label>
                         <input type="time" id="mealType-${index}-time"
                                name="mealTypes[${index}].scheduledTime"
+                               value="${timeValue}"
                                placeholder="HH:mm">
                     </div>
                 </div>
@@ -178,8 +226,15 @@
 
             container.appendChild(mealTypeDiv);
 
-            // Add first option automatically
-            addOption(index);
+            // Add options
+            if (standardOptions && standardOptions.length > 0) {
+                standardOptions.forEach((option, optionIndex) => {
+                    addOption(index, option.description, option.optionNumber);
+                });
+            } else {
+                // Add first option automatically if no data
+                addOption(index);
+            }
         }
 
         function removeMealType(mealTypeIndex) {
@@ -196,28 +251,31 @@
             }
         }
 
-        function addOption(mealTypeIndex) {
+        function addOption(mealTypeIndex, description = '', optionNumber = null) {
             const optionsContainer = document.getElementById(`options-container-${mealTypeIndex}`);
             const currentOptions = optionsContainer.querySelectorAll('.option-block').length;
             const optionIndex = currentOptions;
-            const optionNumber = optionIndex + 1;
+            const finalOptionNumber = optionNumber || (optionIndex + 1);
 
             const optionDiv = document.createElement('div');
             optionDiv.className = 'option-block';
             optionDiv.dataset.optionIndex = optionIndex;
 
+            // Escape description for HTML
+            const escapedDescription = description.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
             optionDiv.innerHTML = `
                 <div class="option-header">
-                    <span class="option-badge">Option #${optionNumber}</span>
+                    <span class="option-badge">Option #${finalOptionNumber}</span>
                     <button type="button" class="btn btn-danger btn-xs" onclick="removeOption(${mealTypeIndex}, ${optionIndex})">Remove</button>
                 </div>
                 <input type="hidden"
                        name="mealTypes[${mealTypeIndex}].standardOptions[${optionIndex}].optionNumber"
-                       value="${optionNumber}">
+                       value="${finalOptionNumber}">
                 <textarea name="mealTypes[${mealTypeIndex}].standardOptions[${optionIndex}].description"
                           required
                           rows="3"
-                          placeholder="e.g. 2 slices whole grain bread -- 45g | Scrambled eggs -- 3 eggs"></textarea>
+                          placeholder="e.g. 2 slices whole grain bread -- 45g | Scrambled eggs -- 3 eggs">${description}</textarea>
             `;
 
             optionsContainer.appendChild(optionDiv);
