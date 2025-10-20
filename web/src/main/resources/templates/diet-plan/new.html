@@ -6,8 +6,325 @@
     <title>New Diet Plan - SanJy</title>
     <link rel="stylesheet" th:href="@{/css/main.css}">
     <link rel="stylesheet" th:href="@{/css/diet-plan.css}">
+    <style>
+        /* Loading Overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            color: white;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Styles */
+
+        /* Base responsive container */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Responsive form rows */
+        .form-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        /* Upload section responsive */
+        .upload-section {
+            margin-bottom: 30px;
+        }
+
+        .upload-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .upload-controls input[type="file"] {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .upload-controls button {
+            white-space: nowrap;
+        }
+
+        /* Form actions responsive */
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+
+        .form-actions .btn {
+            min-width: 120px;
+        }
+
+        /* Meal type blocks */
+        .meal-type-block {
+            margin-bottom: 25px;
+        }
+
+        .meal-type-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* Options section */
+        .options-section {
+            margin-top: 20px;
+        }
+
+        .option-block {
+            margin-bottom: 15px;
+        }
+
+        .option-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        /* Navigation responsive */
+        header nav {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        /* Tablet and below (max-width: 1024px) */
+        @media (max-width: 1024px) {
+            .container {
+                padding: 0 20px;
+            }
+
+            .form-row .form-group {
+                min-width: 200px;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+        }
+
+        /* Mobile (max-width: 768px) */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 10px;
+            }
+
+            /* Stack form rows vertically on mobile */
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .form-row .form-group {
+                min-width: 100%;
+                width: 100%;
+            }
+
+            /* Upload controls stack vertically */
+            .upload-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .upload-controls input[type="file"] {
+                width: 100%;
+                min-width: 100%;
+            }
+
+            .upload-controls button {
+                width: 100%;
+            }
+
+            /* Form actions full width */
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .form-actions .btn {
+                width: 100%;
+                min-width: 100%;
+            }
+
+            /* Header responsive */
+            header {
+                text-align: center;
+            }
+
+            header h1 {
+                font-size: 1.5em;
+                margin-bottom: 15px;
+            }
+
+            header nav {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            header nav a {
+                display: block;
+                padding: 10px;
+                text-align: center;
+            }
+
+            /* Meal type header stack on mobile */
+            .meal-type-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .meal-type-header h3 {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .meal-type-header .btn {
+                width: 100%;
+            }
+
+            /* Option header responsive */
+            .option-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .option-header .btn {
+                width: 100%;
+            }
+
+            /* Add buttons full width on mobile */
+            .btn-add {
+                width: 100%;
+                display: block;
+            }
+
+            /* Section divider spacing */
+            .section-divider {
+                margin: 20px 0;
+            }
+
+            /* Loading text smaller on mobile */
+            .loading-text {
+                font-size: 16px;
+                padding: 0 20px;
+                text-align: center;
+            }
+        }
+
+        /* Extra small mobile (max-width: 480px) */
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 5px;
+            }
+
+            header h1 {
+                font-size: 1.3em;
+            }
+
+            .help-text {
+                font-size: 0.9em;
+            }
+
+            .form-section h2 {
+                font-size: 1.3em;
+            }
+
+            .loading-spinner {
+                width: 40px;
+                height: 40px;
+            }
+
+            .loading-text {
+                font-size: 14px;
+            }
+        }
+
+        /* Landscape mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .form-row {
+                flex-direction: row;
+            }
+
+            .form-row .form-group {
+                min-width: calc(50% - 10px);
+            }
+
+            header nav {
+                flex-direction: row;
+                justify-content: center;
+            }
+        }
+
+        /* Desktop enhancements (min-width: 1200px) */
+        @media (min-width: 1200px) {
+            .container {
+                padding: 0 30px;
+            }
+
+            .form-row .form-group {
+                min-width: 300px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Processing file... Please wait</div>
+    </div>
     <div class="container">
         <header>
             <h1>New Diet Plan</h1>
@@ -156,6 +473,17 @@
                 loadMealTypesFromData(mealTypesData);
             } else {
                 addMealType();
+            }
+
+            // Add loading overlay to upload form
+            const uploadForm = document.querySelector('.upload-form');
+            if (uploadForm) {
+                uploadForm.addEventListener('submit', function(e) {
+                    const fileInput = document.getElementById('file');
+                    if (fileInput && fileInput.files.length > 0) {
+                        document.getElementById('loading-overlay').classList.add('active');
+                    }
+                });
             }
         });
 

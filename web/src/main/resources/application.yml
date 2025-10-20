@@ -11,6 +11,9 @@ spring:
     name: sanjy-client-web
 
   ai:
+    chat:
+      client:
+        enabled: true
     openai:
       api-key: ${SANJY_CLIENT_OPENAI_API_KEY}
       organization-id: ${SANJY_CLIENT_OPENAI_ORGANIZATION_ID}
