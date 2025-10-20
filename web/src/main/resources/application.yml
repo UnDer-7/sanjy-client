@@ -9,3 +9,9 @@ sanjy-client:
 spring:
   application:
     name: sanjy-client-web
+
+  ai:
+    openai:
+      api-key: ${SANJY_CLIENT_OPENAI_API_KEY}
+      organization-id: ${SANJY_CLIENT_OPENAI_ORGANIZATION_ID}
+      project-id: ${SANJY_CLIENT_OPENAI_PROJECT_ID}

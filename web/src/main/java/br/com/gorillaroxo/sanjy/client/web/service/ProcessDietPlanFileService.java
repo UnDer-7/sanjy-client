@@ -1,5 +1,7 @@
 package br.com.gorillaroxo.sanjy.client.web.service;
 
+import br.com.gorillaroxo.sanjy.client.shared.client.dto.request.DietPlanRequestDTO;
+import br.com.gorillaroxo.sanjy.client.web.service.converter.DietPlanConverter;
 import br.com.gorillaroxo.sanjy.client.web.service.extractor.ExtractTextFromFileStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,8 +16,9 @@ import java.util.Set;
 public class ProcessDietPlanFileService {
 
     private final Set<ExtractTextFromFileStrategy> extractors;
+    private final DietPlanConverter dietPlanConverter;
 
-    public void process(final MultipartFile file) {
+    public DietPlanRequestDTO process(final MultipartFile file) {
         final String dietPlanTxt = extractors.stream()
             .filter(extractor -> extractor.accept(file))
             .findFirst()
@@ -23,6 +26,6 @@ public class ProcessDietPlanFileService {
             .orElseThrow(() -> new RuntimeException("Unsupported file type"))
             .extract(file);
 
-        log.info("Diet plan text: {}", dietPlanTxt);
+        return dietPlanConverter.convert(dietPlanTxt);
     }
 }

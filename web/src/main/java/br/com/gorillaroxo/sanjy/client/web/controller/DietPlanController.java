@@ -62,10 +62,8 @@ public class DietPlanController {
             return "diet-plan/new";
         }
 
-        processDietPlanFileService.process(file);
-
         // Create mock data
-        DietPlanRequestDTO mockData = createMockDietPlan();
+        DietPlanRequestDTO mockData = processDietPlanFileService.process(file);
 
         // Add to model to fill form
         model.addAttribute("dietPlanRequest", mockData);
