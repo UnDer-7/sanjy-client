@@ -18,6 +18,7 @@ public class ProcessDietPlanFileService {
     private final Set<ExtractTextFromFileStrategy> extractors;
     private final DietPlanConverter dietPlanConverter;
 
+    // todo: retornar um Optional pq caso falhe no converter nao falhar o request, mostrar na tela q nao foi possivive importar o documento
     public DietPlanRequestDTO process(final MultipartFile file) {
         final String dietPlanTxt = extractors.stream()
             .filter(extractor -> extractor.accept(file))

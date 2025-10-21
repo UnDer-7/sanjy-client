@@ -317,6 +317,97 @@
                 min-width: 300px;
             }
         }
+
+        /* Success Message Styles */
+        .success-message {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 6px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .success-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .success-icon {
+            background-color: #28a745;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+
+        .success-text {
+            flex: 1;
+            color: #155724;
+        }
+
+        .success-text strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .success-text p {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            line-height: 1;
+            color: #155724;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+            transition: color 0.2s;
+        }
+
+        .close-btn:hover {
+            color: #0c3d1a;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile adjustments for success message */
+        @media (max-width: 768px) {
+            .success-message {
+                padding: 12px 15px;
+            }
+
+            .success-text strong {
+                font-size: 15px;
+            }
+
+            .success-text p {
+                font-size: 13px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -349,6 +440,18 @@
             </section>
 
             <hr class="section-divider">
+
+            <!-- Success Message -->
+            <div id="upload-success-message" class="success-message" style="display: none;">
+                <div class="success-content">
+                    <span class="success-icon">✓</span>
+                    <div class="success-text">
+                        <strong>File uploaded successfully!</strong>
+                        <p>Please review the form below, make any necessary changes, and click Save to create your diet plan.</p>
+                    </div>
+                    <button type="button" class="close-btn" onclick="closeSuccessMessage()">&times;</button>
+                </div>
+            </div>
 
             <form th:action="@{/diet-plan}" th:object="${dietPlanRequest}" method="post" class="diet-plan-form">
                 <section class="form-section">
@@ -485,7 +588,35 @@
                     }
                 });
             }
+
+            // Check if upload was successful and show success message
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('uploaded') === 'success' || (mealTypesData && mealTypesData.length > 0)) {
+                showSuccessMessage();
+            }
         });
+
+        function showSuccessMessage() {
+            const successMessage = document.getElementById('upload-success-message');
+            if (successMessage) {
+                successMessage.style.display = 'block';
+
+                // Scroll to message
+                successMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                // Auto-hide after 15 seconds
+                setTimeout(function() {
+                    closeSuccessMessage();
+                }, 15000);
+            }
+        }
+
+        function closeSuccessMessage() {
+            const successMessage = document.getElementById('upload-success-message');
+            if (successMessage) {
+                successMessage.style.display = 'none';
+            }
+        }
 
         document.getElementById('add-meal-type-btn').addEventListener('click', function() {
             addMealType();

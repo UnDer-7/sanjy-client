@@ -68,7 +68,7 @@ public class DietPlanController {
         // Add to model to fill form
         model.addAttribute("dietPlanRequest", mockData);
 
-        return "diet-plan/new";
+        return "redirect:/diet-plan/new?uploaded=success";
     }
 
     private DietPlanRequestDTO createMockDietPlan() {
