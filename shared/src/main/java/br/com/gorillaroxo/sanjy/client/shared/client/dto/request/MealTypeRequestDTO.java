@@ -6,6 +6,7 @@ import java.util.List;
 public record MealTypeRequestDTO(
     String name,
     LocalTime scheduledTime,
+    String observation,
     List<StandardOptionRequestDTO> standardOptions
 ) {
 

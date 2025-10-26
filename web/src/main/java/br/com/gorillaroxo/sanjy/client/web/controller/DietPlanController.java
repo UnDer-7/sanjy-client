@@ -91,16 +91,19 @@ public class DietPlanController {
         mealTypes.add(new MealTypeRequestDTO(
                 "Breakfast",
                 LocalTime.of(9, 30),
+                "30 g proteína | 45 g carbo | 8 g gordura | 380 kcal",
                 breakfastOptions
         ));
         mealTypes.add(new MealTypeRequestDTO(
                 "Lunch",
                 LocalTime.of(13, 0),
+                "50 g proteína | 90 g carbo | 10 g gordura | 650 kcal",
                 lunchOptions
         ));
         mealTypes.add(new MealTypeRequestDTO(
                 "Dinner",
                 LocalTime.of(21, 0),
+                "40 g proteína | 60 g carbo | 8 g gordura | 480 kcal",
                 dinnerOptions
         ));
 
