@@ -650,6 +650,10 @@
                 }
             }
 
+            // Ensure null/undefined values are converted to empty strings
+            const safeObservation = observation || '';
+            const safeMealName = mealName || '';
+
             mealTypeDiv.innerHTML = `
                 <div class="meal-type-header">
                     <h3>Meal Type #${index + 1}</h3>
@@ -661,7 +665,7 @@
                         <label for="mealType-${index}-name">Meal Name *</label>
                         <input type="text" id="mealType-${index}-name"
                                name="mealTypes[${index}].name"
-                               value="${mealName}"
+                               value="${safeMealName}"
                                required
                                placeholder="e.g. Breakfast, Lunch, Dinner">
                     </div>
@@ -679,7 +683,7 @@
                     <textarea id="mealType-${index}-observation"
                               name="mealTypes[${index}].observation"
                               rows="2"
-                              placeholder="e.g. 30 g proteína | 20 g carbo | 5 g gordura | 250 kcal">${observation}</textarea>
+                              placeholder="e.g. 30 g proteína | 20 g carbo | 5 g gordura | 250 kcal">${safeObservation}</textarea>
                     <small class="help-text">Add any notes about this meal type, such as target macros (protein, carbs, fat, calories) or other relevant information</small>
                 </div>
 

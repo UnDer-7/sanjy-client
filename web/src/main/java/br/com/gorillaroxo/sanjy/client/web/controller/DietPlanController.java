@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -33,7 +34,10 @@ public class DietPlanController {
 
     @GetMapping("/new")
     public String showNewPlanForm(Model model) {
-        model.addAttribute("dietPlanRequest", DietPlanRequestDTO.builder().build());
+        // Only add empty object if not already present (from flash attributes)
+        if (!model.containsAttribute("dietPlanRequest")) {
+            model.addAttribute("dietPlanRequest", DietPlanRequestDTO.builder().build());
+        }
         return "diet-plan/new";
     }
 
@@ -51,7 +55,7 @@ public class DietPlanController {
     }
 
     @PostMapping("/upload")
-    public String uploadAndFillForm(@RequestParam("file") MultipartFile file, Model model) {
+    public String uploadAndFillForm(@RequestParam("file") MultipartFile file, Model model, RedirectAttributes redirectAttributes) {
         log.info("File uploaded: {} (size: {} bytes)", file.getOriginalFilename(), file.getSize());
 
         // Validate file
@@ -62,11 +66,11 @@ public class DietPlanController {
             return "diet-plan/new";
         }
 
-        // Create mock data
+        // Process file and get data
         DietPlanRequestDTO mockData = processDietPlanFileService.process(file);
 
-        // Add to model to fill form
-        model.addAttribute("dietPlanRequest", mockData);
+        // Add to flash attributes to survive redirect
+        redirectAttributes.addFlashAttribute("dietPlanRequest", mockData);
 
         return "redirect:/diet-plan/new?uploaded=success";
     }
