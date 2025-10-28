@@ -48,6 +48,7 @@
     <modules>
         <module>web</module>
         <module>shared</module>
+        <module>telegram</module>
     </modules>
 
     <dependencyManagement>
@@ -164,6 +165,20 @@
                                 <version>0.2.0</version>
                             </path>
                         </annotationProcessorPaths>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.graalvm.buildtools</groupId>
+                    <artifactId>native-maven-plugin</artifactId>
+                    <configuration>
+                        <imageName>${project.name}.graalvm</imageName>
+                        <jvmArgs>
+                            <arg>-XX:MaxRAMPercentage=99.0</arg>
+                        </jvmArgs>
+                        <buildArgs>
+                            <buildArg>--static</buildArg>
+                            <buildArg>--libc=musl</buildArg>
+                        </buildArgs>
                     </configuration>
                 </plugin>
             </plugins>
