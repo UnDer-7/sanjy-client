@@ -3,6 +3,7 @@ package br.com.gorillaroxo.sanjy.client.web.controller;
 import br.com.gorillaroxo.sanjy.client.shared.client.dto.request.MealRecordRequestDTO;
 import br.com.gorillaroxo.sanjy.client.shared.client.dto.response.MealRecordResponseDTO;
 import br.com.gorillaroxo.sanjy.client.shared.client.dto.response.PagedResponseDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Controller
 @RequestMapping("/meal")
 public class MealRecordController {

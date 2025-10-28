@@ -56,8 +56,6 @@ public class DietPlanController {
 
     @PostMapping("/upload")
     public String uploadAndFillForm(@RequestParam("file") MultipartFile file, Model model, RedirectAttributes redirectAttributes) {
-        log.info("File uploaded: {} (size: {} bytes)", file.getOriginalFilename(), file.getSize());
-
         // Validate file
         if (file.isEmpty()) {
             log.warn("Empty file uploaded");

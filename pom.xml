@@ -117,10 +117,12 @@
         </dependency>
         <!-- ####################### -->
 
+        <!-- Validation -->
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
+        <!-- ####################### -->
 
         <!-- Test -->
         <dependency>
