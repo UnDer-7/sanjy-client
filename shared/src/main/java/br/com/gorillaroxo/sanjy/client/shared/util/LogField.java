@@ -10,7 +10,17 @@ public enum LogField {
     TRANSACTION_ID,
     HTTP_REQUEST,
     CORRELATION_ID,
-    CHANNEL;
+    CHANNEL,
+    EXCEPTION_CLASS,
+    EXCEPTION_MESSAGE,
+    ERROR_CODE,
+    ERROR_TIMESTAMP,
+    ERROR_MESSAGE,
+    HTTP_STATUS_CODE,
+    CUSTOM_EXCEPTION_STACK_TRACE,
+    CUSTOM_ERROR_MESSAGE,
+    EXCEPTION_CAUSE,
+    EXCEPTION_CAUSE_MSG;
 
     public String label() {
         return this.name().toLowerCase();
