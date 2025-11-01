@@ -3,6 +3,8 @@ package br.com.gorillaroxo.sanjy.client.web.controller;
 import br.com.gorillaroxo.sanjy.client.shared.client.dto.request.MealRecordRequestDTO;
 import br.com.gorillaroxo.sanjy.client.shared.client.dto.response.MealRecordResponseDTO;
 import br.com.gorillaroxo.sanjy.client.shared.client.dto.response.PagedResponseDTO;
+import br.com.gorillaroxo.sanjy.client.web.config.TemplateConstants;
+import br.com.gorillaroxo.sanjy.client.web.util.LoggingHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -21,22 +23,22 @@ import java.util.List;
 @RequestMapping("/meal")
 public class MealRecordController {
 
+    private static final String ATTRIBUTE_MEAL_TYPES = "mealTypes";
+
     @GetMapping("/new")
     public String showNewMealForm(Model model) {
         // Mock: Adicionar objeto vazio para binding
         model.addAttribute("mealRecordRequest", MealRecordRequestDTO.builder().build());
 
         // Mock: Em produção, buscar meal types do plano ativo
-        model.addAttribute("mealTypes", List.of());
+        model.addAttribute(ATTRIBUTE_MEAL_TYPES, List.of());
 
-        return "meal/new";
+        return LoggingHelper.loggingAndReturnControllerPagePath(TemplateConstants.PageNames.MEAL_NEW);
     }
 
     @PostMapping
     public String recordMeal(@ModelAttribute MealRecordRequestDTO request) {
-        // Mock: Não implementar chamada ao backend
-        // Em produção, aqui seria feita a chamada via Feign Client
-        return "redirect:/meal/today";
+        return LoggingHelper.loggingAndReturnControllerPagePath("redirect:/" + TemplateConstants.PageNames.MEAL_TODAY);
     }
 
     @GetMapping("/today")
@@ -77,6 +79,6 @@ public class MealRecordController {
         model.addAttribute("consumedAtBefore", consumedAtBefore);
         model.addAttribute("isFreeMeal", isFreeMeal);
 
-        return "meal/today";
+        return LoggingHelper.loggingAndReturnControllerPagePath(TemplateConstants.PageNames.MEAL_TODAY);
     }
 }

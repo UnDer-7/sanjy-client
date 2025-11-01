@@ -20,7 +20,8 @@ public enum LogField {
     CUSTOM_EXCEPTION_STACK_TRACE,
     CUSTOM_ERROR_MESSAGE,
     EXCEPTION_CAUSE,
-    EXCEPTION_CAUSE_MSG;
+    EXCEPTION_CAUSE_MSG,
+    PAGE_PATH;
 
     public String label() {
         return this.name().toLowerCase();
