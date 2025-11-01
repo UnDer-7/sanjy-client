@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ExceptionCode {
     UNEXPECTED_ERROR("001", "An unexpected internal error occurred."),
-    UNHANDLED_CLIENT_HTTP("002", "A service integration error has occurred");
+    UNHANDLED_CLIENT_HTTP("002", "A service integration error has occurred"),
+    DIET_PLAN_EXTRACTOR_STRATEGY_NOT_FOUND("003", "Unable to process this file format. Please try a different file.");
 
     /**
      * Error code shown to the user

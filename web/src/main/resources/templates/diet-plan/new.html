@@ -318,6 +318,53 @@
             }
         }
 
+        /* Error Message Styles */
+        .error-message {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 6px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .error-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .error-icon {
+            background-color: #dc3545;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+
+        .error-text {
+            flex: 1;
+            color: #721c24;
+        }
+
+        .error-text strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .error-text p {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
         /* Success Message Styles */
         .success-message {
             background-color: #d4edda;
@@ -394,16 +441,19 @@
             }
         }
 
-        /* Mobile adjustments for success message */
+        /* Mobile adjustments for error and success messages */
         @media (max-width: 768px) {
+            .error-message,
             .success-message {
                 padding: 12px 15px;
             }
 
+            .error-text strong,
             .success-text strong {
                 font-size: 15px;
             }
 
+            .error-text p,
             .success-text p {
                 font-size: 13px;
             }
@@ -440,6 +490,18 @@
             </section>
 
             <hr class="section-divider">
+
+            <!-- Error Message -->
+            <div th:if="${error}" class="error-message">
+                <div class="error-content">
+                    <span class="error-icon">✖</span>
+                    <div class="error-text">
+                        <strong>Error</strong>
+                        <p th:text="${error}"></p>
+                    </div>
+                    <button type="button" class="close-btn" onclick="closeErrorMessage()">&times;</button>
+                </div>
+            </div>
 
             <!-- Success Message -->
             <div id="upload-success-message" class="success-message" style="display: none;">
@@ -615,6 +677,13 @@
             const successMessage = document.getElementById('upload-success-message');
             if (successMessage) {
                 successMessage.style.display = 'none';
+            }
+        }
+
+        function closeErrorMessage() {
+            const errorMessage = document.querySelector('.error-message');
+            if (errorMessage) {
+                errorMessage.style.display = 'none';
             }
         }
 

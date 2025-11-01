@@ -10,6 +10,7 @@ import br.com.gorillaroxo.sanjy.client.web.util.LoggingHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.logstash.logback.argument.StructuredArguments;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Controller
@@ -31,6 +35,11 @@ public class DietPlanController {
 
     private final DietPlanFeignClient dietPlanFeignClient;
     private final ProcessDietPlanFileService processDietPlanFileService;
+
+    private static final Set<String> AVAILABLE_FILE_FILL_FORM_MEDIA_TYPES = Set.of(
+        MediaType.APPLICATION_PDF_VALUE,
+        MediaType.TEXT_MARKDOWN_VALUE,
+        MediaType.TEXT_PLAIN_VALUE);
 
     @GetMapping("/new")
     public String showNewPlanForm(Model model) {
@@ -60,20 +69,40 @@ public class DietPlanController {
     @PostMapping("/upload")
     public String uploadAndFillForm(@RequestParam("file") MultipartFile file, Model model, RedirectAttributes redirectAttributes) {
         if (file.isEmpty()) {
-            log.warn("Empty file uploaded");
+            log.warn(
+                LogField.Placeholders.ONE.placeholder,
+                StructuredArguments.kv(LogField.MSG.label(), "Empty file uploaded"));
+
             model.addAttribute("error", "Please select a file to upload");
             model.addAttribute(ATTRIBUTE_DIET_PLAN_REQUEST, DietPlanRequestDTO.builder().build());
 
             return LoggingHelper.loggingAndReturnControllerPagePath(TemplateConstants.PageNames.DIET_PLAN_NEW);
         }
 
-        // Process file and get data
-        DietPlanRequestDTO mockData = processDietPlanFileService.process(file);
+        if (!AVAILABLE_FILE_FILL_FORM_MEDIA_TYPES.contains(file.getContentType())) {
+            String validFormats = String.join(", ", AVAILABLE_FILE_FILL_FORM_MEDIA_TYPES);
+            String errorMessage = String.format("Invalid file format. Valid formats are: %s", validFormats);
+
+            log.warn(
+                LogField.Placeholders.THREE.placeholder,
+                StructuredArguments.kv(LogField.MSG.label(), "Invalid file format uploaded"),
+                StructuredArguments.kv(LogField.FILE_CONTENT_TYPE.label(), file.getContentType()),
+                StructuredArguments.kv(LogField.VALID_FILE_CONTENT_TYPES.label(), "( " + validFormats + " )"));
+
+            model.addAttribute("error", errorMessage);
+            model.addAttribute(ATTRIBUTE_DIET_PLAN_REQUEST, DietPlanRequestDTO.builder().build());
+
+            return LoggingHelper.loggingAndReturnControllerPagePath(TemplateConstants.PageNames.DIET_PLAN_NEW);
+        }
+
+        final Optional<DietPlanRequestDTO> dietPlan = processDietPlanFileService.process(file);
 
         // Add to flash attributes to survive redirect
-        redirectAttributes.addFlashAttribute(ATTRIBUTE_DIET_PLAN_REQUEST, mockData);
+        dietPlan.ifPresent(dp -> redirectAttributes.addFlashAttribute(ATTRIBUTE_DIET_PLAN_REQUEST, dp));
 
-        return LoggingHelper.loggingAndReturnControllerPagePath("redirect:/" + TemplateConstants.PageNames.DIET_PLAN_NEW + "?uploaded=success");
+        return dietPlan
+            .map(_ -> LoggingHelper.loggingAndReturnControllerPagePath("redirect:/" + TemplateConstants.PageNames.DIET_PLAN_NEW + "?uploaded=success"))
+            .orElseGet(() -> LoggingHelper.loggingAndReturnControllerPagePath("redirect:/" + TemplateConstants.PageNames.DIET_PLAN_NEW + "?uploaded=failure"));
     }
 
 }

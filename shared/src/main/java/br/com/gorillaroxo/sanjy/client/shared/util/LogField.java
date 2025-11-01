@@ -28,7 +28,10 @@ public enum LogField {
     REQUEST_HEADERS,
     REQUEST_BODY,
     RESPONSE_HEADERS,
-    RESPONSE_BODY;
+    RESPONSE_BODY,
+    FILE_CONTENT_TYPE,
+    VALID_FILE_CONTENT_TYPES,
+    INPUT_MESSAGE;
 
     public String label() {
         return this.name().toLowerCase();
