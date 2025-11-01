@@ -20,7 +20,12 @@ public class DietPlanConverter {
     private final ChatClient chatClient;
 
     public Optional<DietPlanRequestDTO> convert(final String inputMessage) {
+        log.info(
+            LogField.Placeholders.ONE.placeholder,
+            StructuredArguments.kv(LogField.MSG.label(), "Converting inputMessage to Diet Plan class using A.I."));
+
         final Class<DietPlanRequestDTO> type = DietPlanRequestDTO.class;
+
         try {
             final DietPlanRequestDTO entity = chatClient
                 .prompt()
@@ -28,21 +33,25 @@ public class DietPlanConverter {
                 .call()
                 .entity(type);
 
-            if (entity == null) {
+            if (entity == null || entity.isEmpty()) {
                 log.warn(
                     LogField.Placeholders.TWO.placeholder,
-                    StructuredArguments.kv(LogField.MSG.label(), "Could not convert inputMessage into %s, A.I. model return null".formatted(type.getSimpleName())),
+                    StructuredArguments.kv(LogField.MSG.label(), "Could not convert inputMessage into Diet Plan class, A.I. model return null"),
                     StructuredArguments.kv(LogField.INPUT_MESSAGE.label(), inputMessage));
 
                 return Optional.empty();
             }
+
+            log.info(
+                LogField.Placeholders.ONE.placeholder,
+                StructuredArguments.kv(LogField.MSG.label(), "Successfully converted inputMessage to Diet Plan class using A.I."));
 
             return Optional.of(entity);
 
         } catch (final Exception e) {
             log.warn(
                 LogField.Placeholders.TWO.placeholder,
-                StructuredArguments.kv(LogField.MSG.label(), "An error occurred during converting inputMessage into %s".formatted(type.getSimpleName())),
+                StructuredArguments.kv(LogField.MSG.label(), "An error occurred during converting inputMessage into Diet Plan class using A.I."),
                 StructuredArguments.kv(LogField.INPUT_MESSAGE.label(), inputMessage),
                 e);
 

@@ -515,6 +515,18 @@
                 </div>
             </div>
 
+            <!-- Upload Failure Message -->
+            <div id="upload-failure-message" class="error-message" style="display: none;">
+                <div class="error-content">
+                    <span class="error-icon">✖</span>
+                    <div class="error-text">
+                        <strong>Unable to process file</strong>
+                        <p>We couldn't extract the diet plan information from your file. Please try again with a clearer structure or fill out the form manually below.</p>
+                    </div>
+                    <button type="button" class="close-btn" onclick="closeFailureMessage()" style="color: #721c24;">&times;</button>
+                </div>
+            </div>
+
             <form th:action="@{/diet-plan}" th:object="${dietPlanRequest}" method="post" class="diet-plan-form">
                 <section class="form-section">
                     <h2>Basic Information</h2>
@@ -651,10 +663,12 @@
                 });
             }
 
-            // Check if upload was successful and show success message
+            // Check upload status and show appropriate message
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('uploaded') === 'success' || (mealTypesData && mealTypesData.length > 0)) {
                 showSuccessMessage();
+            } else if (urlParams.get('uploaded') === 'failure') {
+                showFailureMessage();
             }
         });
 
@@ -677,6 +691,28 @@
             const successMessage = document.getElementById('upload-success-message');
             if (successMessage) {
                 successMessage.style.display = 'none';
+            }
+        }
+
+        function showFailureMessage() {
+            const failureMessage = document.getElementById('upload-failure-message');
+            if (failureMessage) {
+                failureMessage.style.display = 'block';
+
+                // Scroll to message
+                failureMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                // Auto-hide after 20 seconds
+                setTimeout(function() {
+                    closeFailureMessage();
+                }, 20000);
+            }
+        }
+
+        function closeFailureMessage() {
+            const failureMessage = document.getElementById('upload-failure-message');
+            if (failureMessage) {
+                failureMessage.style.display = 'none';
             }
         }
 

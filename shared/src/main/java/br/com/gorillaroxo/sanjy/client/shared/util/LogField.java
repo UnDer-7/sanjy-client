@@ -31,7 +31,14 @@ public enum LogField {
     RESPONSE_BODY,
     FILE_CONTENT_TYPE,
     VALID_FILE_CONTENT_TYPES,
-    INPUT_MESSAGE;
+    INPUT_MESSAGE,
+    DIET_PLAN_FILE_NAME,
+    DIET_PLAN_FILE_CONTENT_TYPE,
+    DIET_PLAN_FILE_SIZE_BYTES,
+    DIET_PLAN_NAME,
+    DIET_PLAN_GOAL,
+    DIET_PLAN_NUTRITIONIST_NOTES,
+    DIET_PLAN_MEAL_TYPE_SIZE;
 
     public String label() {
         return this.name().toLowerCase();

@@ -1,7 +1,10 @@
 package br.com.gorillaroxo.sanjy.client.web.service.extractor;
 
+import br.com.gorillaroxo.sanjy.client.shared.util.LogField;
+import br.com.gorillaroxo.sanjy.client.web.exception.FailToExtractTextFromPlainTextFileException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.logstash.logback.argument.StructuredArguments;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,14 +19,36 @@ public class ExtractTextFromFileTextPlainStrategy implements ExtractTextFromFile
 
     @Override
     public String extract(final MultipartFile file) {
-        log.info("Extracting text from TextPlain file");
+        log.info(
+            LogField.Placeholders.FOUR.placeholder,
+            StructuredArguments.kv(LogField.MSG.label(), "Extracting text String from Plain Text file"),
+            StructuredArguments.kv(LogField.DIET_PLAN_FILE_NAME.label(), file.getOriginalFilename()),
+            StructuredArguments.kv(LogField.DIET_PLAN_FILE_CONTENT_TYPE.label(), file.getContentType()),
+            StructuredArguments.kv(LogField.DIET_PLAN_FILE_SIZE_BYTES.label(), file.getSize()));
 
         try {
             byte[] bytes = file.getBytes();
-            return new String(bytes, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            log.error("Error extracting text from file: {}", file.getOriginalFilename(), e);
-            throw new RuntimeException("Failed to extract text from file", e);
+            final String text = new String(bytes, StandardCharsets.UTF_8);
+
+            log.info(
+                LogField.Placeholders.FOUR.placeholder,
+                StructuredArguments.kv(LogField.MSG.label(), "Successfully extract text String from Plain Text file"),
+                StructuredArguments.kv(LogField.DIET_PLAN_FILE_NAME.label(), file.getOriginalFilename()),
+                StructuredArguments.kv(LogField.DIET_PLAN_FILE_CONTENT_TYPE.label(), file.getContentType()),
+                StructuredArguments.kv(LogField.DIET_PLAN_FILE_SIZE_BYTES.label(), file.getSize()));
+
+            return text;
+        } catch (final IOException e) {
+            log.warn(
+                LogField.Placeholders.FIVE.placeholder,
+                StructuredArguments.kv(LogField.MSG.label(), "Fail to extract text from Plain Text file"),
+                StructuredArguments.kv(LogField.DIET_PLAN_FILE_NAME.label(), file.getOriginalFilename()),
+                StructuredArguments.kv(LogField.DIET_PLAN_FILE_CONTENT_TYPE.label(), file.getContentType()),
+                StructuredArguments.kv(LogField.DIET_PLAN_FILE_SIZE_BYTES.label(), file.getSize()),
+                StructuredArguments.kv(LogField.EXCEPTION_MESSAGE.label(), e.getMessage()),
+                e);
+
+            throw new FailToExtractTextFromPlainTextFileException(e);
         }
     }
 
