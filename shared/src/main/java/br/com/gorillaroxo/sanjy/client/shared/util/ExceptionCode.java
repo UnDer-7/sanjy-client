@@ -6,7 +6,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum ExceptionCode {
-    UNEXPECTED_ERROR("001", "An unexpected internal error occurred.");
+    UNEXPECTED_ERROR("001", "An unexpected internal error occurred."),
+    UNHANDLED_CLIENT_HTTP("002", "A service integration error has occurred");
 
     /**
      * Error code shown to the user

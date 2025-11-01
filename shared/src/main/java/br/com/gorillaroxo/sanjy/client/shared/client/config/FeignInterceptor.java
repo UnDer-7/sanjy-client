@@ -1,5 +1,6 @@
-package br.com.gorillaroxo.sanjy.client.shared.config;
+package br.com.gorillaroxo.sanjy.client.shared.client.config;
 
+import br.com.gorillaroxo.sanjy.client.shared.config.SanjyClientConfigProp;
 import br.com.gorillaroxo.sanjy.client.shared.util.DistributedTracingUtil;
 import br.com.gorillaroxo.sanjy.client.shared.util.RequestConstants;
 import feign.RequestInterceptor;

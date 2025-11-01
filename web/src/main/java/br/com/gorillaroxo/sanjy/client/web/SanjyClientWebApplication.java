@@ -10,7 +10,10 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 @EnableConfigurationProperties(SanjyClientConfigProp.class)
 @EnableFeignClients(basePackages = "br.com.gorillaroxo.sanjy.client.shared.client")
-@ComponentScan(basePackages = {"br.com.gorillaroxo.sanjy.client.shared", "br.com.gorillaroxo.sanjy.client.web"})
+@ComponentScan(basePackages = {
+    "br.com.gorillaroxo.sanjy.client.shared",
+    "br.com.gorillaroxo.sanjy.client.web",
+})
 public class SanjyClientWebApplication {
 
     public static void main(String[] args) {

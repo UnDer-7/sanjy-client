@@ -21,7 +21,14 @@ public enum LogField {
     CUSTOM_ERROR_MESSAGE,
     EXCEPTION_CAUSE,
     EXCEPTION_CAUSE_MSG,
-    PAGE_PATH;
+    PAGE_PATH,
+    FEIGN_METHOD_KEY,
+    REQUEST_METHOD,
+    REQUEST_URL,
+    REQUEST_HEADERS,
+    REQUEST_BODY,
+    RESPONSE_HEADERS,
+    RESPONSE_BODY;
 
     public String label() {
         return this.name().toLowerCase();
