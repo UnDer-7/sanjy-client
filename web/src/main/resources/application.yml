@@ -39,3 +39,13 @@ spring:
   threads:
     virtual:
       enabled: true
+
+logging:
+  level:
+    org:
+      springframework:
+        ai:
+          chat:
+            client:
+              # ChatClient Logging
+              advisor: ${SANJY_CLIENT_WEB_LOGGING_LEVEL}

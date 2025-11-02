@@ -34,19 +34,6 @@
         </dependency>
         <!-- ####################### -->
 
-        <!-- Swagger -->
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
-            <version>${springdoc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>${springdoc.version}</version>
-        </dependency>
-        <!-- ####################### -->
-
         <!-- PDF Processing -->
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
