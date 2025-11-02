@@ -12,6 +12,7 @@ public record MealTypeResponseDTO(
     Long id,
     String name,
     LocalTime scheduledTime,
+    String observation,
     Long dietPlanId,
     List<StandardOptionResponseDTO> standardOptions
 ) {

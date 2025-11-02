@@ -196,6 +196,11 @@
                                 </li>
                             </ul>
                         </div>
+
+                        <div th:if="${mealType.observation != null and !#strings.isEmpty(mealType.observation)}" class="meal-observation">
+                            <h5>Observations:</h5>
+                            <p th:text="${mealType.observation}">Meal observations</p>
+                        </div>
                     </div>
                 </section>
             </div>
