@@ -481,10 +481,35 @@
             <section class="upload-section">
                 <h2>Import from File</h2>
                 <p class="help-text">Upload a PDF or text file to auto-fill the form</p>
-                <form th:action="@{/diet-plan/upload}" method="post" enctype="multipart/form-data" class="upload-form">
+
+                <!-- Client-side file size error message -->
+                <div id="file-size-error" class="error-message" style="display: none;">
+                    <div class="error-content">
+                        <span class="error-icon">✖</span>
+                        <div class="error-text">
+                            <strong>File too large</strong>
+                            <p id="file-size-error-message"></p>
+                        </div>
+                        <button type="button" class="close-btn" onclick="closeFileSizeError()" style="color: #721c24;">&times;</button>
+                    </div>
+                </div>
+
+                <!-- Client-side file type error message -->
+                <div id="file-type-error" class="error-message" style="display: none;">
+                    <div class="error-content">
+                        <span class="error-icon">✖</span>
+                        <div class="error-text">
+                            <strong>Invalid file format</strong>
+                            <p id="file-type-error-message"></p>
+                        </div>
+                        <button type="button" class="close-btn" onclick="closeFileTypeError()" style="color: #721c24;">&times;</button>
+                    </div>
+                </div>
+
+                <form th:action="@{/diet-plan/upload}" method="post" enctype="multipart/form-data" class="upload-form" id="upload-form">
                     <div class="upload-controls">
                         <input type="file" id="file" name="file" accept=".pdf,.txt,.md,text/*" required>
-                        <button type="submit" class="btn btn-secondary">Upload & Fill Form</button>
+                        <button type="submit" class="btn btn-secondary" id="upload-submit-btn">Upload & Fill Form</button>
                     </div>
                 </form>
             </section>
@@ -626,7 +651,10 @@
         // Get meal types data from Thymeleaf (if any)
         /*<![CDATA[*/
         const mealTypesData = /*[[${dietPlanRequest.mealTypes}]]*/ null;
+        const maxFileSizeInMb = /*[[${maxFileSizeInMb}]]*/ 10;
+        const allowedContentTypes = /*[[${allowedContentTypes}]]*/ ['application/pdf', 'text/plain', 'text/markdown'];
         /*]]>*/
+        const maxFileSizeInBytes = maxFileSizeInMb * 1024 * 1024;
 
         // Initialize with one meal type and set default dates
         document.addEventListener('DOMContentLoaded', function() {
@@ -652,12 +680,25 @@
                 addMealType();
             }
 
+            // Add file validation on file selection
+            const fileInput = document.getElementById('file');
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    validateFile(this);
+                });
+            }
+
             // Add loading overlay to upload form
             const uploadForm = document.querySelector('.upload-form');
             if (uploadForm) {
                 uploadForm.addEventListener('submit', function(e) {
                     const fileInput = document.getElementById('file');
                     if (fileInput && fileInput.files.length > 0) {
+                        // Validate file before submitting
+                        if (!validateFile(fileInput)) {
+                            e.preventDefault();
+                            return false;
+                        }
                         document.getElementById('loading-overlay').classList.add('active');
                     }
                 });
@@ -720,6 +761,117 @@
             const errorMessage = document.querySelector('.error-message');
             if (errorMessage) {
                 errorMessage.style.display = 'none';
+            }
+        }
+
+        function validateFile(fileInput) {
+            if (fileInput.files.length === 0) {
+                return true;
+            }
+
+            // First validate file type, then size
+            const isValidType = validateFileType(fileInput);
+            if (!isValidType) {
+                return false;
+            }
+
+            const isValidSize = validateFileSize(fileInput);
+            return isValidSize;
+        }
+
+        function validateFileType(fileInput) {
+            if (fileInput.files.length === 0) {
+                return true;
+            }
+
+            const file = fileInput.files[0];
+            const fileType = file.type;
+
+            // Check if file type is in allowed list
+            if (!allowedContentTypes.includes(fileType)) {
+                const validFormats = allowedContentTypes.map(type => {
+                    // Convert MIME types to user-friendly names
+                    if (type === 'application/pdf') return 'PDF';
+                    if (type === 'text/plain') return 'Text';
+                    if (type === 'text/markdown') return 'Markdown';
+                    return type;
+                }).join(', ');
+
+                const errorMessage = `Invalid file format. The selected file type is not supported. Valid formats are: ${validFormats}.`;
+
+                // Show error message
+                const errorDiv = document.getElementById('file-type-error');
+                const errorMessageP = document.getElementById('file-type-error-message');
+                errorMessageP.textContent = errorMessage;
+                errorDiv.style.display = 'block';
+
+                // Scroll to error message
+                errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                // Clear file input
+                fileInput.value = '';
+
+                // Disable submit button
+                document.getElementById('upload-submit-btn').disabled = true;
+
+                return false;
+            } else {
+                // Hide error message if visible
+                closeFileTypeError();
+                return true;
+            }
+        }
+
+        function validateFileSize(fileInput) {
+            if (fileInput.files.length === 0) {
+                return true;
+            }
+
+            const file = fileInput.files[0];
+            const fileSizeInBytes = file.size;
+
+            if (fileSizeInBytes > maxFileSizeInBytes) {
+                const fileSizeInMb = (fileSizeInBytes / (1024 * 1024)).toFixed(2);
+                const errorMessage = `The selected file size is ${fileSizeInMb} MB, which exceeds the maximum allowed limit of ${maxFileSizeInMb} MB. Please select a smaller file.`;
+
+                // Show error message
+                const errorDiv = document.getElementById('file-size-error');
+                const errorMessageP = document.getElementById('file-size-error-message');
+                errorMessageP.textContent = errorMessage;
+                errorDiv.style.display = 'block';
+
+                // Scroll to error message
+                errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                // Clear file input
+                fileInput.value = '';
+
+                // Disable submit button
+                document.getElementById('upload-submit-btn').disabled = true;
+
+                return false;
+            } else {
+                // Hide error message if visible
+                closeFileSizeError();
+
+                // Enable submit button
+                document.getElementById('upload-submit-btn').disabled = false;
+
+                return true;
+            }
+        }
+
+        function closeFileSizeError() {
+            const errorDiv = document.getElementById('file-size-error');
+            if (errorDiv) {
+                errorDiv.style.display = 'none';
+            }
+        }
+
+        function closeFileTypeError() {
+            const errorDiv = document.getElementById('file-type-error');
+            if (errorDiv) {
+                errorDiv.style.display = 'none';
             }
         }
 

@@ -1,14 +1,18 @@
 package br.com.gorillaroxo.sanjy.client.web.config;
 
+import br.com.gorillaroxo.sanjy.client.shared.config.SanjyClientConfigProp;
 import br.com.gorillaroxo.sanjy.client.shared.exception.BusinessException;
 import br.com.gorillaroxo.sanjy.client.shared.exception.UnexpectedErrorException;
 import br.com.gorillaroxo.sanjy.client.shared.util.LogField;
+import br.com.gorillaroxo.sanjy.client.web.exception.FileMaxUploadSizeException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.logstash.logback.argument.StructuredArguments;
 import org.slf4j.MDC;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Arrays;
@@ -21,7 +25,10 @@ import java.util.stream.Collectors;
 @Slf4j
 @ControllerAdvice
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandlerConfig {
+
+    private final SanjyClientConfigProp sanjyClientConfigProp;
 
     @ExceptionHandler(BusinessException.class)
     public ModelAndView businessException(final BusinessException exception) {
@@ -50,6 +57,20 @@ public class GlobalExceptionHandlerConfig {
             exception);
 
         return handleBusinessException(new UnexpectedErrorException(exception));
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ModelAndView handleMaxUploadSizeExceededException(final MaxUploadSizeExceededException exception) {
+        log.warn(
+            LogField.Placeholders.FIVE.placeholder,
+            StructuredArguments.kv(LogField.MSG.label(), "Max upload size exceeded exception"),
+            StructuredArguments.kv(LogField.EXCEPTION_MESSAGE.label(), exception.getMessage()),
+            StructuredArguments.kv(LogField.EXCEPTION_CLASS.label(), exception.getClass().getSimpleName()),
+            StructuredArguments.kv(LogField.EXCEPTION_CAUSE.label(), exception.getCause()),
+            StructuredArguments.kv(LogField.EXCEPTION_CAUSE_MSG.label(), exception.getCause().getMessage()),
+            exception);
+
+        return handleBusinessException(new FileMaxUploadSizeException("max file size is: %sMB".formatted(sanjyClientConfigProp.upload().maxFileSizeInMb()), exception));
     }
 
     private static ModelAndView handleBusinessException(final BusinessException exception) {

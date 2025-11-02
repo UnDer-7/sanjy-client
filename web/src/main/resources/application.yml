@@ -1,5 +1,7 @@
 server:
-  port: 8081
+  port: ${SANJY_CLIENT_WEB_SERVER_PORT}
+  tomcat:
+    max-swallow-size: -1
 
 sanjy-client:
   logging:
@@ -11,8 +13,16 @@ sanjy-client:
       url: ${SANJY_CLIENT_EXTERNAL_API_SANJY_SERVER_URL}
   application:
     channel: web
+  upload:
+    max-file-size-in-mb: ${SANJY_CLIENT_WEB_SERVER_UPLOAD_MAX_FILE_SIZE_IN_MB}
+
 
 spring:
+  servlet:
+    multipart:
+      max-file-size: ${SANJY_CLIENT_WEB_SERVER_UPLOAD_MAX_FILE_SIZE_IN_MB}MB
+      max-request-size: ${SANJY_CLIENT_WEB_SERVER_UPLOAD_MAX_REQUEST_SIZE_IN_MB}MB
+
   application:
     name: sanjy-client-web
 
@@ -26,3 +36,6 @@ spring:
       project-id: ${SANJY_CLIENT_OPENAI_PROJECT_ID}
   main:
     banner-mode: off
+  threads:
+    virtual:
+      enabled: true

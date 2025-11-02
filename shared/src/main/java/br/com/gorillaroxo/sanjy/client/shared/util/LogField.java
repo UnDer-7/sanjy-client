@@ -38,7 +38,8 @@ public enum LogField {
     DIET_PLAN_NAME,
     DIET_PLAN_GOAL,
     DIET_PLAN_NUTRITIONIST_NOTES,
-    DIET_PLAN_MEAL_TYPE_SIZE;
+    DIET_PLAN_MEAL_TYPE_SIZE,
+    DIET_PLAN_MAX_FILE_SIZE_BYTES;
 
     public String label() {
         return this.name().toLowerCase();

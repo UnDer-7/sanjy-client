@@ -3,6 +3,7 @@ package br.com.gorillaroxo.sanjy.client.web.controller;
 import br.com.gorillaroxo.sanjy.client.shared.client.DietPlanFeignClient;
 import br.com.gorillaroxo.sanjy.client.shared.client.dto.request.DietPlanRequestDTO;
 import br.com.gorillaroxo.sanjy.client.shared.client.dto.response.DietPlanResponseDTO;
+import br.com.gorillaroxo.sanjy.client.shared.config.SanjyClientConfigProp;
 import br.com.gorillaroxo.sanjy.client.shared.util.LogField;
 import br.com.gorillaroxo.sanjy.client.web.config.TemplateConstants;
 import br.com.gorillaroxo.sanjy.client.web.service.ProcessDietPlanFileService;
@@ -35,6 +36,7 @@ public class DietPlanController {
 
     private final DietPlanFeignClient dietPlanFeignClient;
     private final ProcessDietPlanFileService processDietPlanFileService;
+    private final SanjyClientConfigProp sanjyClientConfigProp;
 
     private static final Set<String> AVAILABLE_FILE_FILL_FORM_MEDIA_TYPES = Set.of(
         MediaType.APPLICATION_PDF_VALUE,
@@ -47,6 +49,12 @@ public class DietPlanController {
         if (!model.containsAttribute(ATTRIBUTE_DIET_PLAN_REQUEST)) {
             model.addAttribute(ATTRIBUTE_DIET_PLAN_REQUEST, DietPlanRequestDTO.builder().build());
         }
+
+        // Add max file size for client-side validation
+        model.addAttribute("maxFileSizeInMb", sanjyClientConfigProp.upload().maxFileSizeInMb());
+
+        // Add allowed content types for client-side validation
+        model.addAttribute("allowedContentTypes", AVAILABLE_FILE_FILL_FORM_MEDIA_TYPES);
 
         return LoggingHelper.loggingAndReturnControllerPagePath(TemplateConstants.PageNames.DIET_PLAN_NEW);
     }

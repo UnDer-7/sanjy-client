@@ -12,7 +12,8 @@ import org.springframework.validation.annotation.Validated;
 public record SanjyClientConfigProp(
     @NotNull @Valid ExternalApisProp externalApis,
     @NotNull @Valid ApplicationProp application,
-    @NotNull @Valid LoggingProp logging
+    @NotNull @Valid LoggingProp logging,
+    @NotNull @Valid UploadProp upload
 ) {
 
     public record ExternalApisProp(
@@ -37,6 +38,11 @@ public record SanjyClientConfigProp(
         @NotBlank String level,
         @NotBlank String filePath,
         @NotBlank String appender
+    ) {
+    }
+
+    public record UploadProp(
+        @NotNull Integer maxFileSizeInMb
     ) {
     }
 }
