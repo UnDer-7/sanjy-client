@@ -2,10 +2,10 @@ package br.com.gorillaroxo.sanjy.client.web.controller;
 
 import br.com.gorillaroxo.sanjy.client.shared.client.DietPlanFeignClient;
 import br.com.gorillaroxo.sanjy.client.shared.client.dto.request.DietPlanRequestDTO;
-import br.com.gorillaroxo.sanjy.client.shared.client.dto.response.DietPlanResponseDTO;
 import br.com.gorillaroxo.sanjy.client.shared.config.SanjyClientConfigProp;
 import br.com.gorillaroxo.sanjy.client.shared.util.LogField;
 import br.com.gorillaroxo.sanjy.client.web.config.TemplateConstants;
+import br.com.gorillaroxo.sanjy.client.web.service.DietPlanActiveService;
 import br.com.gorillaroxo.sanjy.client.web.service.ProcessDietPlanFileService;
 import br.com.gorillaroxo.sanjy.client.web.util.LoggingHelper;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +37,7 @@ public class DietPlanController {
     private final DietPlanFeignClient dietPlanFeignClient;
     private final ProcessDietPlanFileService processDietPlanFileService;
     private final SanjyClientConfigProp sanjyClientConfigProp;
+    private final DietPlanActiveService dietPlanActiveService;
 
     private static final Set<String> AVAILABLE_FILE_FILL_FORM_MEDIA_TYPES = Set.of(
         MediaType.APPLICATION_PDF_VALUE,
@@ -68,9 +69,7 @@ public class DietPlanController {
 
     @GetMapping("/active")
     public String showActivePlan(Model model) {
-        DietPlanResponseDTO mockPlan = dietPlanFeignClient.activeDietPlan();
-        model.addAttribute(ATTRIBUTE_DIET_PLAN, mockPlan);
-
+        dietPlanActiveService.get().ifPresent(dietPlan -> model.addAttribute(ATTRIBUTE_DIET_PLAN, dietPlan));
         return LoggingHelper.loggingAndReturnControllerPagePath(TemplateConstants.PageNames.DIET_PLAN_ACTIVE);
     }
 

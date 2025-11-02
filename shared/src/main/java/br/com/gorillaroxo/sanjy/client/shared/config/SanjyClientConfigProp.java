@@ -13,7 +13,8 @@ public record SanjyClientConfigProp(
     @NotNull @Valid ExternalApisProp externalApis,
     @NotNull @Valid ApplicationProp application,
     @NotNull @Valid LoggingProp logging,
-    @NotNull @Valid UploadProp upload
+    @NotNull @Valid UploadProp upload,
+    @NotNull @Valid HttpRetryProp httpRetry
 ) {
 
     public record ExternalApisProp(
@@ -43,6 +44,13 @@ public record SanjyClientConfigProp(
 
     public record UploadProp(
         @NotNull Integer maxFileSizeInMb
+    ) {
+    }
+
+    public record HttpRetryProp(
+        @NotNull Integer maxAttempt,
+        @NotNull Integer interval,
+        @NotNull Integer backoffMultiplier
     ) {
     }
 }

@@ -7,6 +7,98 @@
     <title>Active Plan - SanJy</title>
     <link rel="stylesheet" th:href="@{/css/main.css}">
     <link rel="stylesheet" th:href="@{/css/diet-plan.css}">
+    <style>
+        /* Info Message Styles */
+        .info-message {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 30px 0;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .info-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .info-icon {
+            background-color: #17a2b8;
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 28px;
+            margin: 0 auto;
+        }
+
+        .info-text {
+            flex: 1;
+            color: #0c5460;
+            width: 100%;
+        }
+
+        .info-text h2 {
+            margin: 0 0 10px 0;
+            font-size: 1.5em;
+            color: #0c5460;
+        }
+
+        .info-text p {
+            margin: 0 0 20px 0;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .info-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .info-message {
+                padding: 15px;
+            }
+
+            .info-text h2 {
+                font-size: 1.3em;
+            }
+
+            .info-text p {
+                font-size: 1em;
+            }
+
+            .info-actions {
+                flex-direction: column;
+            }
+
+            .info-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -21,10 +113,18 @@
         </header>
 
         <main>
-            <div th:if="${dietPlan == null}" class="empty-state">
-                <h2>No active plan found</h2>
-                <p>You don't have an active diet plan yet.</p>
-                <a th:href="@{/diet-plan/new}" class="btn btn-primary">Create First Plan</a>
+            <div th:if="${dietPlan == null}" class="info-message">
+                <div class="info-content">
+                    <span class="info-icon">ℹ</span>
+                    <div class="info-text">
+                        <h2>No Active Diet Plan Found</h2>
+                        <p>You don't have an active diet plan yet. Create your first plan to start tracking your meals and nutrition goals.</p>
+                    </div>
+                    <div class="info-actions">
+                        <a th:href="@{/diet-plan/new}" class="btn btn-primary">Create Your First Plan</a>
+                        <a th:href="@{/}" class="btn btn-secondary">Go to Home</a>
+                    </div>
+                </div>
             </div>
 
             <div th:if="${dietPlan != null}" class="diet-plan-view">

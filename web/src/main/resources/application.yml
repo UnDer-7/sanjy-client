@@ -15,7 +15,10 @@ sanjy-client:
     channel: web
   upload:
     max-file-size-in-mb: ${SANJY_CLIENT_WEB_SERVER_UPLOAD_MAX_FILE_SIZE_IN_MB}
-
+  http-retry:
+    max-attempt: ${SANJY_CLIENT_HTTP_RETRY_MAX_ATTEMPT}
+    interval: ${SANJY_CLIENT_HTTP_RETRY_INTERVAL}
+    backoff-multiplier: ${SANJY_CLIENT_HTTP_RETRY_BACKOFF_MULTIPLIER}
 
 spring:
   servlet:

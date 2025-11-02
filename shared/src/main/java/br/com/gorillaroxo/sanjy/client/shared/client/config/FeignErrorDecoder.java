@@ -1,5 +1,6 @@
 package br.com.gorillaroxo.sanjy.client.shared.client.config;
 
+import br.com.gorillaroxo.sanjy.client.shared.client.config.handler.FeignErrorHandler;
 import br.com.gorillaroxo.sanjy.client.shared.exception.UnhandledClientHttpException;
 import br.com.gorillaroxo.sanjy.client.shared.util.LogField;
 import br.com.gorillaroxo.sanjy.client.shared.util.function.FunctionWrapper;
@@ -15,12 +16,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
 public class FeignErrorDecoder implements ErrorDecoder {
+
+    private final Set<FeignErrorHandler> errorHandlers;
 
     @Override
     public Exception decode(final String methodKey, final Response response) {
@@ -55,18 +59,22 @@ public class FeignErrorDecoder implements ErrorDecoder {
             StructuredArguments.kv(LogField.RESPONSE_HEADERS.label(), responseHeaders),
             StructuredArguments.kv(LogField.RESPONSE_BODY.label(), responseBody));
 
-        return new UnhandledClientHttpException(
-            UnhandledClientHttpException.RequestInformation.builder()
-                .feignMethodKey(methodKey)
-                .requestMethod(httpMethod)
-                .requestUrl(requestUrl)
-                .httpStatusCode(statusCode)
-                .requestHeaders(requestOpt.map(Request::headers).orElse(null))
-                .requestBody(requestBody)
-                .responseHeaders(responseOpt.map(Response::headers).orElse(null))
-                .responseBody(responseBody)
-                .build()
-        );
+        return errorHandlers.stream()
+            .filter(errorHandler -> errorHandler.canHandle(response, responseBody))
+            .findFirst()
+            .map(errorHandler -> errorHandler.handle(response, responseBody))
+            .orElseGet(() -> new UnhandledClientHttpException(
+                UnhandledClientHttpException.RequestInformation.builder()
+                    .feignMethodKey(methodKey)
+                    .requestMethod(httpMethod)
+                    .requestUrl(requestUrl)
+                    .httpStatusCode(statusCode)
+                    .requestHeaders(requestOpt.map(Request::headers).orElse(null))
+                    .requestBody(requestBody)
+                    .responseHeaders(responseOpt.map(Response::headers).orElse(null))
+                    .responseBody(responseBody)
+                    .build()
+            ));
     }
 
     private static String readHeaders(final Map<String, Collection<String>> headers) {
