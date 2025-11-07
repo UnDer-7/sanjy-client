@@ -1,10 +1,15 @@
 package br.com.gorillaroxo.sanjy.client.web.controller;
 
+import br.com.gorillaroxo.sanjy.client.shared.client.MealRecordFeignClient;
 import br.com.gorillaroxo.sanjy.client.shared.client.dto.request.MealRecordRequestDTO;
+import br.com.gorillaroxo.sanjy.client.shared.client.dto.request.SearchMealRecordParamRequestDTO;
+import br.com.gorillaroxo.sanjy.client.shared.client.dto.response.DietPlanResponseDTO;
 import br.com.gorillaroxo.sanjy.client.shared.client.dto.response.MealRecordResponseDTO;
 import br.com.gorillaroxo.sanjy.client.shared.client.dto.response.PagedResponseDTO;
 import br.com.gorillaroxo.sanjy.client.web.config.TemplateConstants;
+import br.com.gorillaroxo.sanjy.client.web.service.DietPlanActiveService;
 import br.com.gorillaroxo.sanjy.client.web.util.LoggingHelper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -16,28 +21,33 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Slf4j
 @Controller
+@RequiredArgsConstructor
 @RequestMapping("/meal")
 public class MealRecordController {
 
     private static final String ATTRIBUTE_MEAL_TYPES = "mealTypes";
 
+    private final MealRecordFeignClient  mealRecordFeignClient;
+    private final DietPlanActiveService dietPlanActiveService;
+
     @GetMapping("/new")
     public String showNewMealForm(Model model) {
-        // Mock: Adicionar objeto vazio para binding
+        // Adicionar objeto vazio para binding
         model.addAttribute("mealRecordRequest", MealRecordRequestDTO.builder().build());
 
-        // Mock: Em produção, buscar meal types do plano ativo
-        model.addAttribute(ATTRIBUTE_MEAL_TYPES, List.of());
+        dietPlanActiveService.get()
+            .map(DietPlanResponseDTO::mealTypes)
+            .ifPresent(mealTypes -> model.addAttribute(ATTRIBUTE_MEAL_TYPES, mealTypes));
 
         return LoggingHelper.loggingAndReturnControllerPagePath(TemplateConstants.PageNames.MEAL_NEW);
     }
 
     @PostMapping
     public String recordMeal(@ModelAttribute MealRecordRequestDTO request) {
+        mealRecordFeignClient.newMealRecord(request);
         return LoggingHelper.loggingAndReturnControllerPagePath("redirect:/" + TemplateConstants.PageNames.MEAL_TODAY);
     }
 
@@ -50,15 +60,14 @@ public class MealRecordController {
             @RequestParam(required = false) Boolean isFreeMeal,
             Model model) {
 
-        // Mock: Em produção, buscar via Feign Client com os parâmetros de paginação e filtros
-        // Por enquanto, retornar resposta vazia paginada
-        PagedResponseDTO<MealRecordResponseDTO> pagedMeals = PagedResponseDTO.<MealRecordResponseDTO>builder()
-                .totalPages(0)
-                .currentPage(pageNumber)
+        final PagedResponseDTO<MealRecordResponseDTO> pagedMeals = mealRecordFeignClient.searchMealRecords(
+            SearchMealRecordParamRequestDTO.builder()
+                .pageNumber(pageNumber)
                 .pageSize(pageSize)
-                .totalItems(0L)
-                .content(List.of())
-                .build();
+                .consumedAtAfter(consumedAtAfter)
+                .consumedAtBefore(consumedAtBefore)
+                .isFreeMeal(isFreeMeal)
+                .build());
 
         // Calcular contadores no controller (iterando sobre content)
         long plannedMealsCount = pagedMeals.content().stream()

@@ -20,7 +20,20 @@
         </header>
 
         <main>
-            <form th:action="@{/meal}" th:object="${mealRecordRequest}" method="post" class="meal-form">
+            <!-- Message when no diet plan exists -->
+            <div th:if="${mealTypes == null || mealTypes.isEmpty()}" class="form-section" style="text-align: center; padding: 2rem;">
+                <h2 style="color: #dc3545;">Diet Plan Not Found</h2>
+                <p style="margin: 1rem 0;">You need to create a diet plan before recording meals.</p>
+                <p style="margin: 1rem 0;">Please create a diet plan first to start tracking your meals.</p>
+                <div style="margin-top: 2rem;">
+                    <a th:href="@{/diet-plan/new}" class="btn btn-primary">Create Diet Plan</a>
+                    <a th:href="@{/}" class="btn btn-secondary">Go to Home</a>
+                </div>
+            </div>
+
+            <!-- Meal form (only shown when diet plan exists) -->
+            <form th:if="${mealTypes != null && !mealTypes.isEmpty()}"
+                  th:action="@{/meal}" th:object="${mealRecordRequest}" method="post" class="meal-form">
                 <section class="form-section">
                     <h2>1. Select Meal Type</h2>
 
@@ -68,7 +81,6 @@
                             <option value="">-- Select a meal type first --</option>
                             <!-- Options will be loaded dynamically via JavaScript -->
                         </select>
-                        <div id="option-preview" class="option-preview"></div>
                     </div>
                 </section>
 
@@ -151,30 +163,44 @@
         function loadMealOptions() {
             const mealTypeId = document.getElementById('mealTypeId').value;
             const optionSelect = document.getElementById('standardOptionId');
-            const preview = document.getElementById('option-preview');
 
             // Clear previous options
             optionSelect.innerHTML = '<option value="">-- Select an option --</option>';
-            preview.innerHTML = '';
 
             if (!mealTypeId) return;
 
-            // In production, fetch options for the selected meal type
-            // const mealType = mealTypesData.find(mt => mt.id == mealTypeId);
-            // if (mealType && mealType.standardOptions) {
-            //     mealType.standardOptions.forEach(option => {
-            //         const opt = document.createElement('option');
-            //         opt.value = option.id;
-            //         opt.textContent = `Option ${option.optionNumber}`;
-            //         opt.dataset.description = option.description;
-            //         optionSelect.appendChild(opt);
-            //     });
-            // }
+            // Find the selected meal type and load its standard options
+            const mealType = mealTypesData.find(mt => mt.id == mealTypeId);
+            if (mealType && mealType.standardOptions) {
+                mealType.standardOptions.forEach(option => {
+                    const opt = document.createElement('option');
+                    opt.value = option.id;
+                    opt.textContent = `Option ${option.optionNumber} | ${option.description}`;
+                    opt.dataset.description = option.description;
+                    optionSelect.appendChild(opt);
+                });
+            }
+        }
+
+        // Set current datetime as default for consumption time
+        function setDefaultConsumptionTime() {
+            const consumedAtInput = document.getElementById('consumedAt');
+            if (consumedAtInput && !consumedAtInput.value) {
+                const now = new Date();
+                // Format: YYYY-MM-DDTHH:MM
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                consumedAtInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+            }
         }
 
         // Initialize correct state on page load
         document.addEventListener('DOMContentLoaded', function() {
             toggleMealType(false);
+            setDefaultConsumptionTime();
         });
         /*]]>*/
     </script>
