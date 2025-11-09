@@ -5,9 +5,12 @@ import br.com.gorillaroxo.sanjy.client.shared.client.dto.request.MealRecordReque
 import br.com.gorillaroxo.sanjy.client.shared.client.dto.request.SearchMealRecordParamRequestDTO;
 import br.com.gorillaroxo.sanjy.client.shared.client.dto.response.DietPlanResponseDTO;
 import br.com.gorillaroxo.sanjy.client.shared.client.dto.response.MealRecordResponseDTO;
+import br.com.gorillaroxo.sanjy.client.shared.client.dto.response.MealRecordStatisticsResponseDTO;
 import br.com.gorillaroxo.sanjy.client.shared.client.dto.response.PagedResponseDTO;
 import br.com.gorillaroxo.sanjy.client.web.config.TemplateConstants;
+import br.com.gorillaroxo.sanjy.client.web.domain.SearchMealRecordDomain;
 import br.com.gorillaroxo.sanjy.client.web.service.DietPlanActiveService;
+import br.com.gorillaroxo.sanjy.client.web.service.SearchMealRecordService;
 import br.com.gorillaroxo.sanjy.client.web.util.LoggingHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +23,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Objects;
 
 @Slf4j
 @Controller
@@ -32,6 +38,7 @@ public class MealRecordController {
 
     private final MealRecordFeignClient  mealRecordFeignClient;
     private final DietPlanActiveService dietPlanActiveService;
+    private final SearchMealRecordService searchMealRecordService;
 
     @GetMapping("/new")
     public String showNewMealForm(Model model) {
@@ -60,32 +67,29 @@ public class MealRecordController {
             @RequestParam(required = false) Boolean isFreeMeal,
             Model model) {
 
-        final PagedResponseDTO<MealRecordResponseDTO> pagedMeals = mealRecordFeignClient.searchMealRecords(
-            SearchMealRecordParamRequestDTO.builder()
-                .pageNumber(pageNumber)
-                .pageSize(pageSize)
-                .consumedAtAfter(consumedAtAfter)
-                .consumedAtBefore(consumedAtBefore)
-                .isFreeMeal(isFreeMeal)
-                .build());
+        // Initialize date filters to show today's meals by default
+        final LocalDateTime effectiveConsumedAtAfter = Objects.requireNonNullElse(consumedAtAfter, LocalDate.now().atTime(LocalTime.MIN));
 
-        // Calcular contadores no controller (iterando sobre content)
-        long plannedMealsCount = pagedMeals.content().stream()
-                .filter(meal -> meal.isFreeMeal() != null && !meal.isFreeMeal())
-                .count();
+        final LocalDateTime effectiveConsumedAtBefore = Objects.requireNonNullElse(consumedAtBefore, LocalDate.now().atTime(LocalTime.MAX));
 
-        long freeMealsCount = pagedMeals.content().stream()
-                .filter(meal -> meal.isFreeMeal() != null && meal.isFreeMeal())
-                .count();
+        final SearchMealRecordDomain searchResult = searchMealRecordService.search(
+            pageNumber,
+            pageSize,
+            effectiveConsumedAtAfter,
+            effectiveConsumedAtBefore,
+            isFreeMeal
+        );
 
-        // Adicionar atributos ao modelo
+        final PagedResponseDTO<MealRecordResponseDTO> pagedMeals = searchResult.mealRecord();
+        final MealRecordStatisticsResponseDTO mealRecordStatistics = searchResult.mealRecordStatistics();
+
         model.addAttribute("pagedMeals", pagedMeals);
-        model.addAttribute("totalPlannedMeals", (int) plannedMealsCount);
-        model.addAttribute("totalFreeMeals", (int) freeMealsCount);
+        model.addAttribute("totalPlannedMeals", mealRecordStatistics.plannedMealQuantity().intValue());
+        model.addAttribute("totalFreeMeals", mealRecordStatistics.freeMealQuantity().intValue());
 
-        // Filtros para manter estado no formulário
-        model.addAttribute("consumedAtAfter", consumedAtAfter);
-        model.addAttribute("consumedAtBefore", consumedAtBefore);
+        // Filters to maintain state in the form
+        model.addAttribute("consumedAtAfter", effectiveConsumedAtAfter);
+        model.addAttribute("consumedAtBefore", effectiveConsumedAtBefore);
         model.addAttribute("isFreeMeal", isFreeMeal);
 
         return LoggingHelper.loggingAndReturnControllerPagePath(TemplateConstants.PageNames.MEAL_TODAY);

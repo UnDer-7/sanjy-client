@@ -3,14 +3,18 @@ package br.com.gorillaroxo.sanjy.client.shared.client;
 import br.com.gorillaroxo.sanjy.client.shared.client.dto.request.MealRecordRequestDTO;
 import br.com.gorillaroxo.sanjy.client.shared.client.dto.request.SearchMealRecordParamRequestDTO;
 import br.com.gorillaroxo.sanjy.client.shared.client.dto.response.MealRecordResponseDTO;
+import br.com.gorillaroxo.sanjy.client.shared.client.dto.response.MealRecordStatisticsResponseDTO;
 import br.com.gorillaroxo.sanjy.client.shared.client.dto.response.PagedResponseDTO;
 import br.com.gorillaroxo.sanjy.client.shared.exception.UnhandledClientHttpException;
+import br.com.gorillaroxo.sanjy.client.shared.util.RequestConstants;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @FeignClient(
@@ -44,4 +48,14 @@ public interface MealRecordFeignClient {
     @GetMapping
     PagedResponseDTO<MealRecordResponseDTO> searchMealRecords(@SpringQueryMap SearchMealRecordParamRequestDTO paramRequestDTO);
 
+    /**
+     * Retrieves aggregated statistics for meal records within a specified date range.
+     * Returns metrics such as total meals consumed, breakdown by meal type (standard vs free meals),
+     * and nutritional totals. Use this to analyze eating patterns, track diet adherence, and monitor nutritional intake over a period.
+     * @throws UnhandledClientHttpException When the request return an error (4xx or 5xx)
+     */
+    @GetMapping("/statistics")
+    MealRecordStatisticsResponseDTO getMealRecordStatisticsByDateRange(
+        @RequestParam(name = RequestConstants.Query.CONSUMED_AT_AFTER, required = false) final LocalDateTime consumedAtAfter,
+        @RequestParam(name = RequestConstants.Query.CONSUMED_AT_BEFORE, required = false) final LocalDateTime consumedAtBefore);
 }

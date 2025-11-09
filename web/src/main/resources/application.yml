@@ -2,6 +2,7 @@ server:
   port: ${SANJY_CLIENT_WEB_SERVER_PORT}
   tomcat:
     max-swallow-size: -1
+  shutdown: graceful
 
 sanjy-client:
   logging:
